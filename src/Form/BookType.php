@@ -13,7 +13,7 @@ class BookType extends AbstractType
     {
         $builder
             ->add('ASIN')
-            ->add('BSR')
+            //->add('BSR')
         ;
     }
 

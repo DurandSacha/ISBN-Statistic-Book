@@ -18,7 +18,7 @@ class Book
     private $id;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string")
      */
     private $ASIN;
 
@@ -32,12 +32,12 @@ class Book
         return $this->id;
     }
 
-    public function getASIN(): ?int
+    public function getASIN(): ?string
     {
         return $this->ASIN;
     }
 
-    public function setASIN(int $ASIN): self
+    public function setASIN(string $ASIN): self
     {
         $this->ASIN = $ASIN;
 
