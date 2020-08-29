@@ -31,8 +31,9 @@ class FrontController extends AbstractController
             );
     
             dump($statusCode = $response->getStatusCode());
+            dump('Trouver la regex BSR');
             $content = $response->getContent();
-            dump($content);
+            //dump($content);
             /*
             <tr id="amazon-sales-rank-detail">
             <td class="a-span3">
@@ -44,7 +45,7 @@ class FrontController extends AbstractController
             <span>553,058 en Livres (<a href='/gp/bestsellers/books/ref=pd_zg_ts_books'>Voir les 100 premiers en Livres</a>)</span>
             <br>
             */
-            $bsr = preg_match_all("#<span>#", $content);
+            $bsr = preg_match_all("#^<span>[1-999],[1-999]en Livres#", $content);
             dd($bsr[0]);
 
             $book->setBSR($bsr);
