@@ -32,20 +32,33 @@ class FrontController extends AbstractController
 
             $content = $response->getContent();
 
-            dump($content);
+            //dump($content);
 
-            if($response->getStatusCode() == 200){
+            if($response->getStatusCode() == 200 || $response->getStatusCode() == 301){
                 // Find BSR
                 preg_match_all("#[1-9]{3}+,[1-9]{3}#", $content, $resultBsr);
                 $bsr = $resultBsr[0][42];
-                $book->setBSR($bsr);
+                if($bsr){
+                    $book->setBSR($bsr);
+                }
+                else{
+                    $book->setBSR($bsr); 
+                }
 
-                //Find title
-                dd($content);
-                preg_match_all("#title#", $content, $resultTitle);
-                dd($resultTitle[0]);
+                /*
+                <span id="productTitle" class="a-size-extra-large"> \n
+                Carnet de santé cochon d'inde: Livre de santé pour suivre son cochon d'inde \n
+                </span> \n
+                */
 
-
+                //Find title ( before : and after <span id=\"productTitle\" class=\"a-size-extra-large\"> )
+                preg_match_all("#<span id=\"productTitle\" class=\"a-size-extra-large\">\n([a-zA-Z0-9é'_\s]){15,}#", $content, $resultTitle);
+                $title = str_replace('<span id="productTitle" class="a-size-extra-large">', '', $resultTitle[0]);
+                //$title = str_replace('\n', '', $title);
+                //dd($title[0]);
+                //dd($title);
+                $book->setTitle($title);
+                
                 $em->persist($book);
                 $em->flush();
             }
