@@ -27,6 +27,11 @@ class Book
      */
     private $BSR;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $title;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -44,14 +49,26 @@ class Book
         return $this;
     }
 
-    public function getBSR(): ?int
+    public function getBSR(): ?string
     {
         return $this->BSR;
     }
 
-    public function setBSR(?int $BSR): self
+    public function setBSR(?string $BSR): self
     {
         $this->BSR = $BSR;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): self
+    {
+        $this->title = $title;
 
         return $this;
     }

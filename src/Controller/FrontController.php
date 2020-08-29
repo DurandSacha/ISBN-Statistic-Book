@@ -29,32 +29,31 @@ class FrontController extends AbstractController
                 'GET',
                 'https://www.amazon.fr/dp/' . $book->getASIN()
             );
-    
-            dump($statusCode = $response->getStatusCode());
-            dump('Trouver la regex BSR');
+
             $content = $response->getContent();
-            //dump($content);
-            /*
-            <tr id="amazon-sales-rank-detail">
-            <td class="a-span3">
-            Classement des meilleures ventes
-            </td>
-            <td class="a-span9">
-            <span>
 
-            <span>553,058 en Livres (<a href='/gp/bestsellers/books/ref=pd_zg_ts_books'>Voir les 100 premiers en Livres</a>)</span>
-            <br>
-            */
-            $bsr = preg_match_all("#^<span>[1-999],[1-999]en Livres#", $content);
-            dd($bsr[0]);
+            dump($content);
 
-            $book->setBSR($bsr);
-            $em->persist($book);
-            $em->flush();
+            if($response->getStatusCode() == 200){
+                // Find BSR
+                preg_match_all("#[1-9]{3}+,[1-9]{3}#", $content, $resultBsr);
+                $bsr = $resultBsr[0][42];
+                $book->setBSR($bsr);
 
-            return $content;
+                //Find title
+                dd($content);
+                preg_match_all("#title#", $content, $resultTitle);
+                dd($resultTitle[0]);
 
-            // update Database
+
+                $em->persist($book);
+                $em->flush();
+            }
+            else{
+                $book->setBSR('no data');
+                $em->persist($book);
+                $em->flush();
+            }
         }
 
         return $this->render('index.html.twig', [
