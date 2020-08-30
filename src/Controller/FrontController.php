@@ -36,8 +36,9 @@ class FrontController extends AbstractController
 
             if($response->getStatusCode() == 200 || $response->getStatusCode() == 301){
                 // Find BSR
-                preg_match_all("#[1-9]{3}+,[1-9]{3}#", $content, $resultBsr);
-                $bsr = $resultBsr[0][42];
+                preg_match_all("#[1-9]{3}+,[1-9]{3} en Livre#", $content, $resultBsr);
+                $bsr =str_replace(' en Livre', '', $resultBsr[0][0]);
+                //dd($bsr);
                 if($bsr){
                     $book->setBSR($bsr);
                 }
@@ -52,18 +53,25 @@ class FrontController extends AbstractController
                 */
 
                 //Find title ( before : and after <span id=\"productTitle\" class=\"a-size-extra-large\"> )
-                preg_match_all("#<span id=\"productTitle\" class=\"a-size-extra-large\">\n([a-zA-Z0-9é'_\s]){15,}#", $content, $resultTitle);
+                preg_match("#<span id=\"productTitle\" class=\"a-size-extra-large\">\n([a-zA-Z0-9é'_\s]){15,}#", $content, $resultTitle);
                 $title = str_replace('<span id="productTitle" class="a-size-extra-large">', '', $resultTitle[0]);
-                //$title = str_replace('\n', '', $title);
+                $titleSolo = str_replace('\n', '', $title);
                 //dd($title[0]);
-                //dd($title);
-                $book->setTitle($title);
-                
-                $em->persist($book);
-                $em->flush();
+                //dd($titleSolo);
+                if($titleSolo){
+                    $book->setTitle($titleSolo);
+                    $em->persist($book);
+                    $em->flush();
+                }
+                else{
+                    $book->setTitle('no title');
+                    $em->persist($book);
+                    $em->flush();
+                }
             }
             else{
-                $book->setBSR('no data');
+                $book->setBSR('Request 404');
+                $book->setTitle('No title ( 404 )');
                 $em->persist($book);
                 $em->flush();
             }
