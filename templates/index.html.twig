@@ -16,15 +16,27 @@
                 <th scope="col">ASIN</th>
                 <th scope="col">BSR</th>
                 <th scope="col">Titre</th>
+                <th scope="col">Supprimer l'enregistrement</th>
                 </tr>
             </thead>
             <tbody>
                 {% for book in books %}
                     <tr>
-                    <th scope="row">#</th>
-                    <td>{{ book.asin }}</td>
-                    <td>{{ book.bsr }}</td>
-                    <td>{{ book.title }}</td>
+                        <th scope="row">#</th>
+                        <td>{{ book.asin }}</td>
+                        <td>
+                            {% if book.bsr == 'no BSR' %}
+                                <p class="text-danger font-weight-bold"> No BSR</p>
+                            {% else %}
+                                {{ book.bsr }}
+                            {% endif %}
+                        </td>
+                        <td>{{ book.title }}</td>
+                        <td>
+                                    <form action="{{ path('book_delete', {'id' : book.id }) }}">
+                                        <button class="btn btn-danger btn-sm">Supprimer l'entrée</button>
+                                    </form>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

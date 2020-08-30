@@ -35,39 +35,50 @@ class FrontController extends AbstractController
             //dump($content);
 
             if($response->getStatusCode() == 200 || $response->getStatusCode() == 301){
-                // Find BSR
-                preg_match_all("#[1-9]{3}+,[1-9]{3} en Livre#", $content, $resultBsr);
-                $bsr =str_replace(' en Livre', '', $resultBsr[0][0]);
-                //dd($bsr);
+                // Find BSR broché
+                preg_match("#<span>[1-9]{3}+,[1-9]{3} en Livres#", $content, $resultBsr);
+                $bsr = str_replace(' en Livres', '', $resultBsr);
+                $bsr = str_replace('<span>', '', $bsr);
+                $bsr = implode($bsr);
+                // ASIN Book culture immergée : B07KPT4VJX
+                // carnet de santé gecko : B089M41Y91
                 if($bsr){
                     $book->setBSR($bsr);
+                    $em->persist($book);
+                    $em->flush();
                 }
                 else{
-                    $book->setBSR($bsr); 
-                }
 
-                /*
-                <span id="productTitle" class="a-size-extra-large"> \n
-                Carnet de santé cochon d'inde: Livre de santé pour suivre son cochon d'inde \n
-                </span> \n
-                */
+                    // rechercher avec les Ebooks
+                    preg_match("#<span>[1-9]{3}+,[1-9]{3} en Boutique Kindle#", $content, $resultBsrEbook);
+                    //dd($resultBsr);
+                    $bsr = str_replace(' en Boutique Kindle', '', $resultBsrEbook);
+                    $bsr = str_replace('<span>', '', $bsr);
+                    $bsr = implode($bsr);
+                    if($bsr){
+                        $book->setBSR($bsr);
+                    }
+                    else{
+                        $book->setBSR('no BSR'); 
+                    }
+                    $em->persist($book);
+                    $em->flush();
+                }
 
                 //Find title ( before : and after <span id=\"productTitle\" class=\"a-size-extra-large\"> )
                 preg_match("#<span id=\"productTitle\" class=\"a-size-extra-large\">\n([a-zA-Z0-9é'_\s]){15,}#", $content, $resultTitle);
-                $title = str_replace('<span id="productTitle" class="a-size-extra-large">', '', $resultTitle[0]);
+                $title = str_replace('<span id="productTitle" class="a-size-extra-large">', '', $resultTitle);
+                //dd($resultTitle);
                 $titleSolo = str_replace('\n', '', $title);
-                //dd($title[0]);
-                //dd($titleSolo);
+                $titleSolo = implode($titleSolo);
                 if($titleSolo){
                     $book->setTitle($titleSolo);
-                    $em->persist($book);
-                    $em->flush();
                 }
                 else{
                     $book->setTitle('no title');
-                    $em->persist($book);
-                    $em->flush();
                 }
+                $em->persist($book);
+                $em->flush();
             }
             else{
                 $book->setBSR('Request 404');
